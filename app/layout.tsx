@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-// @ts-expect-error - Next.js global CSS is imported for side effects.
 import "./globals.css";
 import { ReelBotPanel } from "./components/reelbot-panel";
-import { SessionProvider } from "next-auth/react";
 import { AxeInit } from "./components/axe-init";
 
 export const metadata: Metadata = {
