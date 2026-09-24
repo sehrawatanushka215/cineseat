@@ -1,26 +1,442 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   CineSeat base styles.
+   Deliberately plain CSS, not utility classes: the point of this workshop is
+   the architecture, not the design system. Tailwind stays imported above so
+   you can reach for a utility class any time you want one.
+   --------------------------------------------------------------------------- */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #10131a;
+  --surface: #1a1f2b;
+  --surface-2: #232936;
+  --text: #f2f4f8;
+  --text-muted: #b3bccd;
+  --line: #39415280;
+  --accent: #ffb703;
+  --accent-ink: #1a1200;
+  --focus: #7dd3fc;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+}
+
+main {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+}
+
+a {
+  color: var(--focus);
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin: 0 0 0.25rem;
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 2rem 0 0.75rem;
+}
+
+/* Visible focus everywhere. Never remove this. */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 0.6rem 1rem;
+  z-index: 10;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+  padding: 0.9rem 1.25rem;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.button {
+  font: inherit;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+}
+
+.button--quiet {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--line);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------------------
+   Section B - the seat map
+   --------------------------------------------------------------------------- */
+
+.seat-map {
+  margin-top: 1.5rem;
+}
+
+.screen-label {
+  text-align: center;
+  color: var(--text-muted);
+  letter-spacing: 0.5em;
+  font-size: 0.75rem;
+  border-bottom: 2px solid var(--line);
+  padding-bottom: 0.75rem;
+  margin: 0 auto 1.5rem;
+  max-width: 26rem;
+}
+
+.seat-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.seat-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.seat-row__label {
+  width: 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.seat {
+  font: inherit;
+  font-size: 0.8rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.seat--selected {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+
+/* AUDIT NOTE (Section G): this pairing fails WCAG contrast on purpose.
+   Do not "fix" it early - Lighthouse is meant to find it in Section G. */
+.seat--booked {
+  background: #262b36;
+  color: #b3bccd;
+  cursor: not-allowed;
+}
+
+.legend {
+  list-style: none;
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  padding: 0;
+  margin: 1.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend__swatch {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  display: inline-block;
+}
+
+.legend__swatch--available {
+  background: var(--surface-2);
+}
+
+.legend__swatch--selected {
+  background: var(--accent);
+}
+
+.legend__swatch--booked {
+  background: #262b36;
+}
+
+.seat-map__actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.announcement {
+  text-align: center;
+  min-height: 1.5rem;
+  color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Section C - showtimes, auth, bookings
+   --------------------------------------------------------------------------- */
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.auth-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.showtime-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.showtime {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.showtime__film {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+}
+
+.poster {
+  border-radius: 8px;
+  flex: none;
+}
+
+.notice {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+
+.my-bookings {
+  margin-top: 2.5rem;
+}
+
+.my-bookings ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.my-bookings code {
+  background: var(--surface-2);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+pre {
+  background: var(--surface-2);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Section D - ReelBot
+   --------------------------------------------------------------------------- */
+
+.showtime-layout {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+}
+
+@media (min-width: 62rem) {
+  .showtime-layout {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+.reelbot {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 32rem;
+}
+
+.reelbot h2 {
+  margin-top: 0;
+}
+
+.reelbot__log {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  max-height: none;
+}
+
+.bubble {
+  border-radius: 10px;
+  padding: 0.6rem 0.85rem;
+  max-width: 90%;
+}
+
+.bubble__text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.bubble--user {
+  background: var(--surface-2);
+  align-self: flex-end;
+}
+
+.bubble--assistant {
+  background: #202839;
+  align-self: flex-start;
+}
+
+.typing {
+  font-size: 0.85rem;
+}
+
+.tool-call {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-left: 2px solid var(--line);
+  padding-left: 0.6rem;
+}
+
+.tool-call pre {
+  font-size: 0.75rem;
+}
+
+.confirm {
+  margin-top: 0.6rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: #2a2210;
+}
+
+.confirm__title {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.confirm__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.reelbot__error {
+  border: 1px solid #f08c8c;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.reelbot__error p {
+  margin: 0 0 0.5rem;
+}
+
+.reelbot__form {
+  margin-top: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.reelbot__input {
+  font: inherit;
+  flex: 1;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+.showtime>div {
+  min-width: 0;
+  flex: 1;
+}
+
+.showtime .button {
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+.showtime p {
+  margin: 0 0 0.5rem;
 }

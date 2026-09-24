@@ -1,0 +1,65 @@
+// ---------------------------------------------------------------------------
+// The Section H / production version: same models, real database enum.
+// Slide 34's fix, exactly as taught, on a connector that supports it.
+// To use: set DATABASE_URL to your Postgres string, copy this over
+// schema.prisma, and run `npx prisma migrate dev --name init`.
+// ---------------------------------------------------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SeatStatus {
+  available
+  selected
+  booked
+}
+
+enum BookingStatus {
+  confirmed
+  cancelled
+}
+
+model Showtime {
+  id       String    @id @default(cuid())
+  film     String
+  time     DateTime
+  screen   Int
+  seats    Seat[]
+  bookings Booking[]
+}
+
+model Seat {
+  id         String     @id @default(cuid())
+  showtimeId String
+  row        String
+  number     Int
+  status     SeatStatus @default(available)
+
+  showtime Showtime @relation(fields: [showtimeId], references: [id])
+  booking  Booking?
+
+  @@unique([showtimeId, row, number])
+  @@index([showtimeId])
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  showtimeId String
+  seatId     String        @unique
+  userEmail  String
+  status     BookingStatus @default(confirmed)
+  createdAt  DateTime      @default(now())
+
+  showtime Showtime @relation(fields: [showtimeId], references: [id])
+  seat     Seat     @relation(fields: [seatId], references: [id])
+
+  
+  @@index([userEmail])
+  @@index([showtimeId])
+}

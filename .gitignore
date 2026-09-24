@@ -39,3 +39,25 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Append these lines to the .gitignore that create-next-app generated.
+
+# env
+.env
+.env.local
+.env*.local
+
+# prisma
+prisma/dev.db
+prisma/dev.db-journal
+prisma/migrations/dev.db*
+
+# test output
+coverage/
+
+# audit output
+*.report.html
+lighthouse-report*
+
+
+/app/generated/prisma

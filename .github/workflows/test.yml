@@ -1,0 +1,34 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      # CI never touches your real data. A throwaway SQLite file is enough to
+      # generate the Prisma client and type-check the build.
+      DATABASE_URL: "file:./ci.db"
+      AUTH_SECRET: "ci-only-not-a-real-secret"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run tests with coverage
+        run: npm test -- --coverage
+
+      # Type errors are a test failure too. This is the step that catches a
+      # broken import three files away from anything you touched.
+      - name: Build
+        run: npm run build
