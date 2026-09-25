@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "db:migrate": "prisma migrate dev --name init",
+    "db:migrate:dev": "prisma migrate dev --name init",
+    "db:migrate": "prisma migrate deploy",
     "db:seed": "node prisma/seed.mjs",
     "db:reset": "prisma migrate reset --force --skip-seed && npm run db:seed",
     "audit:a11y": "npx @axe-core/cli http://localhost:3000"
