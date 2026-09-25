@@ -9,7 +9,7 @@ jobs:
     env:
       # CI never touches your real data. A throwaway SQLite file is enough to
       # generate the Prisma client and type-check the build.
-      DATABASE_URL: "file:./ci.db"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       AUTH_SECRET: "ci-only-not-a-real-secret"
 
     steps:
