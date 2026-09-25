@@ -181,6 +181,7 @@ export function ReelBotPanel() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask ReelBot..."
+          aria-label="Ask ReelBot a question"
           autoComplete="off"
         />
         <button type="submit" className="button" disabled={status !== "ready"}>
